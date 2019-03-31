@@ -1,0 +1,141 @@
+syntax = "proto3";
+package rbk.protocol;
+import "google/protobuf/wrappers.proto";
+
+message Message_MapProperty {
+	string key = 1;
+ 	string type = 2;
+	bytes value = 3; // for backward compatibility
+	oneof oneof_value {
+		string string_value = 4;
+		bool bool_value = 5;
+        int32 int32_value = 6;
+		uint32 uint32_value = 7;
+		int64 int64_value = 8;
+		uint64 uint64_value = 9;
+		float float_value = 10;
+		double double_value = 11;
+		bytes bytes_value = 12;
+	}
+}
+
+message Message_MapPos {
+	double x = 1;
+	double y = 2;
+}
+
+message Message_MapRSSIPos {
+	double x = 1;
+	double y = 2;
+}
+
+message Message_MapLine {
+	Message_MapPos start_pos = 1;
+	Message_MapPos end_pos = 2;
+}
+
+message Message_MapHeader {
+	string map_type = 1;	//type of map: 2D-Map or 3D-Map
+	string map_name = 2;	//name of map: the map file name
+	Message_MapPos min_pos = 3;
+	Message_MapPos max_pos = 4;
+	double resolution = 5; //unit: m
+	string version = 8;
+}
+
+message Message_MapAttribute {
+	string description = 1; // description of the this class
+	uint32 color_pen = 2;
+	uint32 color_brush = 3;
+	uint32 color_font=4;
+}
+
+message Message_AdvancedPoint {
+	string class_name = 1;	//the class_name from the Message_AdvancedObjectDefine
+	string instance_name = 2; // the name of this instance
+	Message_MapPos pos = 3;
+	double dir = 4;
+	repeated Message_MapProperty property = 5; // write in json
+	bool ignore_dir = 6;
+	bytes desc = 8;
+	Message_MapAttribute attribute = 10;
+}
+
+message Message_AdvancedLine {
+	string class_name = 1;   //the class_name from the Message_AdvancedObjectDefine
+	string instance_name = 2;// the name of this instance
+	Message_MapLine line = 3;
+	repeated Message_MapProperty property = 4; // write in json
+	bytes desc = 8;
+	Message_MapAttribute attribute = 10;
+}
+
+message Message_AdvancedCurve {
+	string class_name = 1;   //the class_name from the Message_AdvancedObjectDefine
+	string instance_name = 2;// the name of this instance
+	Message_AdvancedPoint start_pos = 3;
+	Message_AdvancedPoint end_pos = 4;
+	Message_MapPos control_pos1 = 5;
+	Message_MapPos control_pos2 = 6;
+	repeated Message_MapProperty property = 7; // write in json
+	bytes desc = 8;
+	Message_MapPos control_pos3 = 9;
+	repeated Message_Device devices = 12;
+	Message_MapAttribute attribute = 15;
+}
+
+message Message_AdvancedArea {
+	string class_name = 1;//the class_name from the Message_AdvancedObjectDefine
+	string instance_name = 2;// the name of this instance
+	repeated Message_MapPos pos_group = 3; // usually four lines in a group
+	double dir = 4;
+	repeated Message_MapProperty property = 5; // write in json
+	bytes desc = 8;
+	repeated Message_Device devices = 10;
+	Message_MapAttribute attribute = 15;
+}
+
+message Message_VirtualLineList {
+	repeated Message_MapLine virtual_map_line = 1;
+}
+
+message Message_LaserDevice {
+	uint32 id = 1;
+	repeated Message_MapPos laser_margin_pos = 2;
+}
+
+message Message_Device {
+	string model_name = 1;
+	repeated Message_LaserDevice laser_devices = 5;
+	repeated double ultrasonic_dist = 6; // dist = -1 means not used
+	repeated double fallingdown_dist = 7; // dist = -1 means not used
+}
+
+message Message_PatrolRouteStation {
+	string id = 1;
+}
+
+message Message_PatrolRoute {
+	string name = 1;
+	repeated Message_PatrolRouteStation station_list = 2;
+	google.protobuf.DoubleValue max_speed = 4;
+	google.protobuf.DoubleValue max_acc = 5;
+	google.protobuf.DoubleValue max_rot = 6;
+	google.protobuf.DoubleValue max_rot_acc = 7;
+	bytes desc = 8;
+	google.protobuf.DoubleValue max_dec = 9;
+	google.protobuf.DoubleValue max_rot_dec = 10;
+}
+
+message Message_Map {
+	string map_directory = 1;
+	Message_MapHeader header = 2;
+	repeated Message_MapPos normal_pos_list = 3;
+	repeated Message_MapLine normal_line_list = 4;
+	repeated Message_AdvancedPoint advanced_point_list = 6;
+	repeated Message_AdvancedLine  advanced_line_list = 7;
+	repeated Message_AdvancedCurve advanced_curve_list = 8;
+	repeated Message_AdvancedArea  advanced_area_list = 9;
+	repeated Message_PatrolRoute patrol_route_list = 10;
+	repeated Message_MapRSSIPos rssi_pos_list = 11;
+}
